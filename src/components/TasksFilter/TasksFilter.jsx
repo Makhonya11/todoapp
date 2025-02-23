@@ -5,26 +5,22 @@ import PropTypes from 'prop-types'
 export default class TasksFilter extends Component {
   static defaultProps = {
     onFilterChange: () => {},
-    filterValue: 'all',
+    filterValue: 'All',
   }
   static propTypes = {
     filterValue: PropTypes.string,
     onFilterChange: PropTypes.func,
   }
-  buttons = [
-    { name: 'all', label: 'All' },
-    { name: 'active', label: 'Active' },
-    { name: 'done', label: 'Completed' },
-  ]
+  buttons = ['All', 'Active', 'Completed']
   render() {
     const { filterValue, onFilterChange, filter } = this.props
-    const buttons = this.buttons.map(({ name, label }) => {
-      const isActive = name === filterValue
+    const buttons = this.buttons.map((button) => {
+      const isActive = button === filterValue
       const className = isActive ? 'selected' : ''
       return (
-        <li key={name}>
-          <button className={className} onClick={() => onFilterChange(name)}>
-            {label}
+        <li key={button}>
+          <button className={className} onClick={() => onFilterChange(button)}>
+            {button}
           </button>
         </li>
       )

@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { Component } from 'react'
+import classNames from 'classnames'
 import './Task.css'
 import PropTypes from 'prop-types'
 
@@ -7,13 +8,11 @@ export default class Task extends Component {
   static defaultProps = {
     onDelete: () => {},
     isDone: () => {},
-    addItem: () => {},
     editTaskLabel: () => {},
   }
   static propTypes = {
     onDelete: PropTypes.func,
     isDone: PropTypes.func,
-    addItem: PropTypes.func,
     editTaskLabel: PropTypes.func,
   }
   state = {
@@ -30,20 +29,17 @@ export default class Task extends Component {
 
   render() {
     const { id, label, creationTime, done } = this.props.task
-
+    const classList = classNames({ completed: done, editing: this.state.isEdit })
     return (
-      <li className={done ? 'completed' : this.state.isEdit ? 'editing' : ''}>
+      <li className={classList}>
         <div className="view">
-          <input
-            onClick={() => this.props.isDone(id)}
-            className="toggle"
-            type="checkbox"
-            checked={done ? true : false}
-          />
-          <label onClick={() => this.props.isDone(id)}>
-            <span className="description">{label}</span>
-            <span className="created">created {creationTime}</span>
-          </label>
+          <div onClick={() => this.props.isDone(id)}>
+            <input className="toggle" type="checkbox" checked={done ? true : false} />
+            <label>
+              <span className="description">{label}</span>
+              <span className="created">created {creationTime}</span>
+            </label>
+          </div>
           <button className="icon icon-edit" onClick={() => this.editTask()}></button>
           <button className="icon icon-destroy" onClick={() => this.props.onDelete(id)}></button>
         </div>

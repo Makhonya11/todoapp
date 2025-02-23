@@ -1,11 +1,9 @@
-import { createRoot } from 'react-dom/client'
 import { Component } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 
-import NewTasksForm from '../NewTasksForm/NewTasksForm'
-import TaskList from '../TaskList/TaskList'
-import Footer from '../Footer/Footer'
-import TasksFilter from '../TasksFilter/TasksFilter'
+import NewTasksForm from '../components/NewTasksForm/NewTasksForm'
+import TaskList from '../components/TaskList/TaskList'
+import Footer from '../components/Footer/Footer'
 
 import './App.css'
 
@@ -13,20 +11,9 @@ export default class App extends Component {
   idNumber = 100
   state = {
     todoData: [],
-    filter: 'all',
+    filter: 'All',
   }
 
-  deleteItem = (id) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id)
-      const newData = todoData.toSpliced(idx, 1)
-      //console.log(newData)
-
-      return {
-        todoData: newData,
-      }
-    })
-  }
   onToggleDone = (id) => {
     this.setState(({ todoData }) => {
       const idx = todoData.findIndex((el) => el.id === id)
@@ -42,6 +29,7 @@ export default class App extends Component {
     const creatingDate = new Date()
 
     const newItem = {
+      creatingDate: creatingDate,
       label: itemName,
       done: false,
       creationTime: formatDistanceToNow(creatingDate, { includeSeconds: true }),
@@ -55,19 +43,42 @@ export default class App extends Component {
         todoData: newArr,
       }
     })
-    const interval = setInterval(() => {
-      this.setState(({ todoData }) => {
-        return {
-          todoData: todoData.map((item) =>
-            item.id === newItem.id
-              ? { ...item, creationTime: formatDistanceToNow(creatingDate, { includeSeconds: true }) }
-              : item
-          ),
-        }
-      })
-    }, 20000)
+    this.timer()
+  }
+  interval = null
+  timer = () => {
+    if (!this.interval) {
+      this.interval = setInterval(() => {
+        this.setState(({ todoData }) => {
+          return {
+            todoData: todoData.map((item) => ({
+              ...item,
+              creationTime: formatDistanceToNow(item.creatingDate, { includeSeconds: true }),
+            })),
+          }
+        })
+      }, 5000)
+    }
   }
 
+  deleteItem = (id) => {
+    this.setState(
+      ({ todoData }) => {
+        const idx = todoData.findIndex((el) => el.id === id)
+        const newData = todoData.toSpliced(idx, 1)
+
+        return {
+          todoData: newData,
+        }
+      },
+      () => {
+        if (this.state.todoData.length === 0) {
+          clearInterval(this.interval)
+          this.interval = null
+        }
+      }
+    )
+  }
   clearCompleted = () => {
     this.setState(({ todoData }) => {
       return {
@@ -78,11 +89,11 @@ export default class App extends Component {
 
   filter = (items, filter) => {
     switch (filter) {
-      case 'all':
+      case 'All':
         return items
-      case 'active':
+      case 'Active':
         return items.filter((item) => !item.done)
-      case 'done':
+      case 'Completed':
         return items.filter((item) => item.done)
       default:
         return items

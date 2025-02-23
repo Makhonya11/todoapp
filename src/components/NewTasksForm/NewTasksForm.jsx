@@ -19,27 +19,32 @@ export default class NewTasksForm extends Component {
     })
   }
   onAddTask = (e) => {
-    if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-      if (this.state.label.trim().length > 0) {
-        this.props.createItem(this.state.label)
-        this.setState({
-          label: '',
-        })
-      }
-    }
+    this.props.createItem(this.state.label)
+    this.setState({
+      label: '',
+    })
   }
   render() {
     return (
       <header className="header">
         <h1>todos</h1>
-        <input
-          className="new-todo"
-          placeholder="What needs to be done?"
-          autoFocus
-          onInput={(e) => this.onLabelChancge(e)}
-          onKeyDown={(e) => this.onAddTask(e)}
-          value={this.state.label}
-        />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            this.onAddTask(e)
+          }}
+        >
+          <input
+            pattern=".*\S.*"
+            type="text"
+            className="new-todo"
+            placeholder="What needs to be done?"
+            autoFocus
+            required
+            onInput={(e) => this.onLabelChancge(e)}
+            value={this.state.label}
+          />
+        </form>
       </header>
     )
   }
