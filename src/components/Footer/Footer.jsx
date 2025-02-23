@@ -1,4 +1,3 @@
-import { createRoot } from 'react-dom/client'
 import PropTypes from 'prop-types'
 
 import TasksFilter from '../TasksFilter/TasksFilter'

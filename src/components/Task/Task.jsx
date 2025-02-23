@@ -1,4 +1,3 @@
-import { createRoot } from 'react-dom/client'
 import { Component } from 'react'
 import classNames from 'classnames'
 import './Task.css'
