@@ -25,20 +25,23 @@ export default class Task extends Component {
       }
     })
   }
-
   render() {
     const { id, label, creationTime, done } = this.props.task
     const classList = classNames({ completed: done, editing: this.state.isEdit })
     return (
       <li className={classList}>
         <div className="view">
-          <div onClick={() => this.props.isDone(id)}>
-            <input className="toggle" type="checkbox" checked={done ? true : false} />
-            <label>
-              <span className="description">{label}</span>
-              <span className="created">created {creationTime}</span>
-            </label>
-          </div>
+          <input
+            id={`doneSwitcher - ${id}`}
+            className="toggle"
+            type="checkbox"
+            checked={done}
+            onClick={() => this.props.isDone(id)}
+          />
+          <label htmlFor={`doneSwitcher - ${id}`}>
+            <span className="description">{label}</span>
+            <span className="created">created {creationTime}</span>
+          </label>
           <button className="icon icon-edit" onClick={() => this.editTask()}></button>
           <button className="icon icon-destroy" onClick={() => this.props.onDelete(id)}></button>
         </div>

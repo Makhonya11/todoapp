@@ -1,9 +1,9 @@
 import { Component } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 
-import NewTasksForm from '../components/NewTasksForm/NewTasksForm'
-import TaskList from '../components/TaskList/TaskList'
-import Footer from '../components/Footer/Footer'
+import NewTasksForm from '../NewTasksForm/NewTasksForm'
+import TaskList from '../TaskList/TaskList'
+import Footer from '../Footer/Footer'
 
 import './App.css'
 
