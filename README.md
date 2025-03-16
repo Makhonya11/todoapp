@@ -1,1 +1,1 @@
-https://todoapp-git-tasktimer-makhachs-projects.vercel.app/
+https://todoapp-makhachs-projects.vercel.app
