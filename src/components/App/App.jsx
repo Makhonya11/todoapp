@@ -34,6 +34,8 @@ export default class App extends Component {
       done: false,
       creationTime: formatDistanceToNow(creatingDate, { includeSeconds: true }),
       id: this.idNumber++,
+      timeCounter: 0,
+      timerId: null,
     }
 
     this.setState(({ todoData }) => {
@@ -113,6 +115,31 @@ export default class App extends Component {
       }
     })
   }
+
+  toStartTimer = (id) => {
+    const timerId = setInterval(() => {
+      this.setState(({ todoData }) => {
+        const idx = todoData.findIndex((el) => el.id === id)
+        const oldItem = todoData[idx]
+        const newItem = { ...oldItem, timeCounter: oldItem.timeCounter + 1, timerId: timerId }
+        return {
+          todoData: todoData.toSpliced(idx, 1, newItem),
+        }
+      })
+    }, 1000)
+  }
+
+  toStopTimer = (id) => {
+    this.setState(({ todoData }) => {
+      const idx = todoData.findIndex((el) => el.id === id)
+      const oldItem = todoData[idx]
+      const newItem = { ...oldItem, timerId: clearInterval(oldItem.timerId) }
+      return {
+        todoData: todoData.toSpliced(idx, 1, newItem),
+      }
+    })
+  }
+
   render() {
     const counter = this.state.todoData.filter((el) => !el.done).length
     const visibleItems = this.filter(this.state.todoData, this.state.filter)
@@ -125,6 +152,8 @@ export default class App extends Component {
             onDeleted={this.deleteItem}
             onToggleDone={this.onToggleDone}
             editTask={this.editTaskLabel}
+            toStartTimer={this.toStartTimer}
+            toStopTimer={this.toStopTimer}
           />
           <Footer
             leftItems={counter}
