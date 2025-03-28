@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { Component, useState, useEffect } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 
 import NewTasksForm from '../NewTasksForm/NewTasksForm'
@@ -7,89 +7,76 @@ import Footer from '../Footer/Footer'
 
 import './App.css'
 
-export default class App extends Component {
-  idNumber = 100
-  state = {
-    todoData: [],
-    filter: 'All',
-  }
+const App = () => {
+  const [todoData, setTodoData] = useState([])
+  const [filter, setFilter] = useState('All')
+  const [idNumber, setIdnumber] = useState(100)
 
-  onToggleDone = (id) => {
-    this.setState(({ todoData }) => {
+  const onToggleDone = (id) => {
+    setTodoData((todoData) => {
       const idx = todoData.findIndex((el) => el.id === id)
       const oldItem = todoData[idx]
       const newItem = { ...oldItem, done: !oldItem.done }
-      return {
-        todoData: todoData.toSpliced(idx, 1, newItem),
-      }
+      return todoData.toSpliced(idx, 1, newItem)
     })
   }
 
-  createItem = (itemName) => {
+  const createItem = (itemName) => {
     const creatingDate = new Date()
+    setIdnumber((idNumber) => idNumber + 1)
 
     const newItem = {
       creatingDate: creatingDate,
       label: itemName,
       done: false,
       creationTime: formatDistanceToNow(creatingDate, { includeSeconds: true }),
-      id: this.idNumber++,
+      id: idNumber,
       timeCounter: 0,
       timerId: null,
     }
 
-    this.setState(({ todoData }) => {
+    setTodoData((todoData) => {
       const newArr = [newItem, ...todoData]
-
-      return {
-        todoData: newArr,
-      }
+      return newArr
     })
-    this.timer()
+
+    timer()
   }
-  interval = null
-  timer = () => {
-    if (!this.interval) {
-      this.interval = setInterval(() => {
-        this.setState(({ todoData }) => {
-          return {
-            todoData: todoData.map((item) => ({
-              ...item,
-              creationTime: formatDistanceToNow(item.creatingDate, { includeSeconds: true }),
-            })),
-          }
-        })
+  let interval = null
+  const timer = () => {
+    if (!interval) {
+      interval = setInterval(() => {
+        setTodoData((todoData) =>
+          todoData.map((item) => ({
+            ...item,
+            creationTime: formatDistanceToNow(item.creatingDate, {
+              includeSeconds: true,
+            }),
+          }))
+        )
       }, 5000)
     }
   }
 
-  deleteItem = (id) => {
-    this.setState(
-      ({ todoData }) => {
-        const idx = todoData.findIndex((el) => el.id === id)
-        const newData = todoData.toSpliced(idx, 1)
+  const deleteItem = (id) => {
+    setTodoData((todoData) => {
+      const idx = todoData.findIndex((el) => el.id === id)
+      const newData = todoData.toSpliced(idx, 1)
 
-        return {
-          todoData: newData,
-        }
-      },
-      () => {
-        if (this.state.todoData.length === 0) {
-          clearInterval(this.interval)
-          this.interval = null
-        }
+      if (todoData.length === 0) {
+        clearInterval(interval)
+        interval = null
       }
-    )
-  }
-  clearCompleted = () => {
-    this.setState(({ todoData }) => {
-      return {
-        todoData: todoData.filter((el) => !el.done),
-      }
+
+      return newData
     })
   }
 
-  filter = (items, filter) => {
+  const clearCompleted = () => {
+    setTodoData((todoData) => todoData.filter((el) => !el.done))
+  }
+
+  const changeFilter = (items, filter) => {
     switch (filter) {
       case 'All':
         return items
@@ -102,68 +89,64 @@ export default class App extends Component {
     }
   }
 
-  onFilterChange = (filter) => {
-    this.setState({ filter })
-  }
-  editTaskLabel = (id, newLabel) => {
-    this.setState(({ todoData }) => {
+  const onFilterChange = (filter) => setFilter(filter)
+  const editTaskLabel = (id, newLabel) => {
+    setTodoData((todoData) => {
       const idx = todoData.findIndex((el) => el.id === id)
       const oldItem = todoData[idx]
       const newItem = { ...oldItem, label: newLabel }
-      return {
-        todoData: todoData.toSpliced(idx, 1, newItem),
-      }
+      return todoData.toSpliced(idx, 1, newItem)
     })
   }
 
-  toStartTimer = (id) => {
+  const toStartTimer = (id) => {
     const timerId = setInterval(() => {
-      this.setState(({ todoData }) => {
+      setTodoData((todoData) => {
         const idx = todoData.findIndex((el) => el.id === id)
         const oldItem = todoData[idx]
-        const newItem = { ...oldItem, timeCounter: oldItem.timeCounter + 1, timerId: timerId }
-        return {
-          todoData: todoData.toSpliced(idx, 1, newItem),
+        const newItem = {
+          ...oldItem,
+          timeCounter: oldItem.timeCounter + 1,
+          timerId: timerId,
         }
+        return todoData.toSpliced(idx, 1, newItem)
       })
     }, 1000)
   }
 
-  toStopTimer = (id) => {
-    this.setState(({ todoData }) => {
+  const toStopTimer = (id) => {
+    setTodoData((todoData) => {
       const idx = todoData.findIndex((el) => el.id === id)
       const oldItem = todoData[idx]
       const newItem = { ...oldItem, timerId: clearInterval(oldItem.timerId) }
-      return {
-        todoData: todoData.toSpliced(idx, 1, newItem),
-      }
+      return todoData.toSpliced(idx, 1, newItem)
     })
   }
 
-  render() {
-    const counter = this.state.todoData.filter((el) => !el.done).length
-    const visibleItems = this.filter(this.state.todoData, this.state.filter)
-    return (
-      <section className="todoapp">
-        <NewTasksForm createItem={this.createItem} />
-        <section className="main">
-          <TaskList
-            todos={visibleItems}
-            onDeleted={this.deleteItem}
-            onToggleDone={this.onToggleDone}
-            editTask={this.editTaskLabel}
-            toStartTimer={this.toStartTimer}
-            toStopTimer={this.toStopTimer}
-          />
-          <Footer
-            leftItems={counter}
-            clearCompleted={this.clearCompleted}
-            filter={this.filter}
-            filterValue={this.state.filter}
-            onFilterChange={this.onFilterChange}
-          />
-        </section>
+  const counter = todoData.filter((el) => !el.done).length
+  const visibleItems = changeFilter(todoData, filter)
+  return (
+    <section className="todoapp">
+      <NewTasksForm createItem={createItem} />
+      <section className="main">
+        <TaskList
+          todos={visibleItems}
+          onDeleted={deleteItem}
+          onToggleDone={onToggleDone}
+          editTask={editTaskLabel}
+          toStartTimer={toStartTimer}
+          toStopTimer={toStopTimer}
+        />
+        <Footer
+          leftItems={counter}
+          clearCompleted={clearCompleted}
+          filter={changeFilter}
+          filterValue={filter}
+          onFilterChange={onFilterChange}
+        />
       </section>
-    )
-  }
+    </section>
+  )
 }
+
+export default App
